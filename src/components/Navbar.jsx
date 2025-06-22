@@ -19,7 +19,7 @@ export default function Navbar() {
   // Handle sign out by clearing session storage and redirecting to login page
   const handleSignOut = () => {
     console.log("User signed out");
-    logout();
+    // logout();
     navigate("/login");
   };
 

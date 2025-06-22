@@ -7,6 +7,7 @@ import LoginForm from "./pages/Login";
 import SignUpForm from "./pages/Signup";
 import PrivateRoutes from "./PrivateRoutes";
 import CreateBlog from "./pages/CreateBlog";
+import EditBlog from "./pages/EditBlog";
 
 const App = () => {
   return (
@@ -16,9 +17,8 @@ const App = () => {
         <Routes>
           <Route element={<PrivateRoutes />}>
             <Route path="/home" element={<Home />} />
-              <Route path="/create" element={<CreateBlog />} />
-                {/* <Route path="/blog/:id" element={<ViewBlog />} />
-            <Route path="/edit/:id" element={<EditBlog />} /> */}
+            <Route path="/create" element={<CreateBlog />} />
+            <Route path="/edit/:id" element={<EditBlog />} />
           </Route>
           <Route path="/" element={<SignUpForm />} />
           <Route path="/login" element={<LoginForm />} />

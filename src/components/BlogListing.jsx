@@ -1,23 +1,45 @@
+// components/BlogsListing.jsx
 import React from "react";
-import BlogCard from "./BlogCard"; // Import the reusable BlogCard component
-import { Grid } from "@mantine/core";
+import { SimpleGrid } from "@mantine/core";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { http } from "../config/http";
+import BlogCard from "./BlogCard";
 
 const BlogsListing = ({ blogs }) => {
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    // mutationFn receives the post ID
+    mutationFn: (postId) => {
+      const token = sessionStorage.getItem("accessToken");
+      return http.delete(`/posts/${postId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    onSuccess: () => {
+      // Invalidate the 'blogs' query so it refetches
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    },
+  });
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
   return (
-    <div className="container mx-auto p-8">
-      <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800">Latest Blogs</h2>
-      <Grid  gutter="md">
-        {blogs.map((blog) => (
-          <Grid.Col key={blog.id} span={6} sm={4} md={3}>
-            <BlogCard
-              id={blog.id}
-              title={blog.title}
-              description={blog.description}
-            />
-          </Grid.Col>
-        ))}
-      </Grid>
-    </div>
+    <SimpleGrid cols={3} spacing="lg">
+      {blogs.map((blog) => (
+        <BlogCard
+          key={blog._id}
+          id={blog._id}
+          title={blog.title}
+          description={blog.content}
+          onDelete={handleDelete}
+        />
+      ))}
+    </SimpleGrid>
   );
 };
 

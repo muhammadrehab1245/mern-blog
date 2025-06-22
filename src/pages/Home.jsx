@@ -1,39 +1,60 @@
-import { Button, Box, Text, Title } from '@mantine/core';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import Navbar from '../components/Navbar';
-import BlogsListing from '../components/BlogListing';
+import React, { useEffect, useState } from "react";
+import { Button, Box, Text, Title } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/Navbar";
+import BlogsListing from "../components/BlogListing";
 
 const Home = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-const blogs = [
-    {
-      id: 1,
-      title: "How to Learn React",
-      description: "A comprehensive guide to learning React from scratch.",
-    },
-    {
-      id: 2,
-      title: "Understanding JavaScript Closures",
-      description: "In this post, we dive deep into JavaScript closures and their use cases.",
-    },
-    {
-      id: 3,
-      title: "CSS Grid Layout Tutorial",
-      description: "Learn how to use CSS Grid Layout for creating modern web designs.",
-    },
-    {
-      id: 4,
-      title: "Introduction to Node.js",
-      description: "Get started with Node.js and build server-side applications.",
-    },
-  ];
+
+  // State to store the blog posts
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const response = await fetch(
+          "https://assignment-blog-mocha.vercel.app/api/posts/list",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`, // Include the token in the headers
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch blogs");
+        }
+
+        const data = await response.json();
+        setBlogs(data); // Set the blog posts
+        setLoading(false); // Stop loading once data is fetched
+      } catch (err) {
+        setError(err.message); // Set error if something goes wrong
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs(); // Fetch blogs on component mount
+  }, []);
+
+  if (loading) {
+    return <Text align="center">Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text align="center" color="red">{`Error: ${error}`}</Text>;
+  }
 
   return (
     <>
-    <Navbar/>
-     <BlogsListing blogs={blogs} />;
+      <Navbar />
+      <BlogsListing blogs={blogs} />
     </>
   );
 };
